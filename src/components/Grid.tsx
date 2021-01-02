@@ -10,6 +10,7 @@ import { ROW_NUMS_WIDTH, GridModel } from "../lib/types";
 import { useModelState } from "../models/model-hooks";
 
 const Wrap = styled.div`
+  position: relative;
   background: #f8f8f8;
 `;
 const Group = styled.div`
