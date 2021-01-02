@@ -2,7 +2,7 @@ import { useRef, useLayoutEffect, useState } from "react";
 import styled from "styled-components";
 
 import { ScrollCorner, SCROLLBAR_SIZE } from "./GridScrollbar";
-import { useWindowEvent } from '../lib/window-hooks';
+import { useWindowEvent } from "../lib/window-hooks";
 import { SchemaItem, ROW_NUMS_WIDTH, GridViewport } from "../lib/types";
 
 const Container = styled.div`
@@ -65,12 +65,19 @@ type GridHeaderProps = {
 };
 
 type ResizingCell = {
-  idx: number
-  startingX: number
-  startingWidth: number
-}
+  idx: number;
+  startingX: number;
+  startingWidth: number;
+};
 
-const GridHeader = ({ viewport, cells, width, gridHeight, onChangeHeight, onResizeCell }: GridHeaderProps) => {
+const GridHeader = ({
+  viewport,
+  cells,
+  width,
+  gridHeight,
+  onChangeHeight,
+  onResizeCell,
+}: GridHeaderProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [resizingCell, setResizingCell] = useState<ResizingCell | null>(null);
   const [resizingCellWidth, setResizingCellWidth] = useState(0);
@@ -83,17 +90,21 @@ const GridHeader = ({ viewport, cells, width, gridHeight, onChangeHeight, onResi
     }
   });
 
-  useWindowEvent('mouseup', () => {
-    if (resizingCell) {
-      if (cells && viewport) {
-        const newHeight = Math.max(MIN_CELL_WIDTH, resizingCellWidth);
+  useWindowEvent(
+    "mouseup",
+    () => {
+      if (resizingCell) {
+        if (cells && viewport) {
+          const newHeight = Math.max(MIN_CELL_WIDTH, resizingCellWidth);
 
-        onResizeCell(resizingCell.idx, newHeight);
+          onResizeCell(resizingCell.idx, newHeight);
+        }
+
+        setResizingCell(null);
       }
-
-      setResizingCell(null);
-    }
-  }, [resizingCell, resizingCellWidth, viewport, cells, onResizeCell]);
+    },
+    [resizingCell, resizingCellWidth, viewport, cells, onResizeCell]
+  );
 
   const onResizeMouseDown = (cellIdx: number) => (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -107,7 +118,7 @@ const GridHeader = ({ viewport, cells, width, gridHeight, onChangeHeight, onResi
       startingX: e.pageX,
       startingWidth: width,
     });
-  }
+  };
 
   const onContainerMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (resizingCell) {
@@ -115,18 +126,14 @@ const GridHeader = ({ viewport, cells, width, gridHeight, onChangeHeight, onResi
 
       setResizingCellWidth(Math.max(MIN_CELL_WIDTH, startingWidth + (e.pageX - startingX)));
     }
-  }
+  };
 
   if (!viewport) {
     return null;
   }
 
   for (var idx = viewport.left; idx < cells.length && idx <= viewport.right; idx++) {
-    const {
-      label,
-      id,
-      dimension,
-    } = cells[idx];
+    const { label, id, dimension } = cells[idx];
 
     const isResizingCell = resizingCell && resizingCell.idx === idx;
     const width = isResizingCell ? resizingCellWidth : dimension.width;
@@ -135,9 +142,7 @@ const GridHeader = ({ viewport, cells, width, gridHeight, onChangeHeight, onResi
       <Column key={id} style={{ width }} title={label}>
         <ColumnLabel>{label}</ColumnLabel>
         <ColumnResizeHandle onMouseDown={onResizeMouseDown(idx)} />
-        {isResizingCell && (
-          <ColumnResizeMarker style={{ bottom: -gridHeight - 1 }} />
-        )}
+        {isResizingCell && <ColumnResizeMarker style={{ bottom: -gridHeight - 1 }} />}
       </Column>
     );
   }

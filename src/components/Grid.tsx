@@ -77,7 +77,7 @@ const Grid = ({ model, width, height }: GridProps) => {
 
   const onChangeCell = (cellIdx: number, rowIdx: number, value: string) => {
     model.changeCell(cellIdx, rowIdx, value);
-  }
+  };
 
   return (
     <Wrap style={{ width, height }}>

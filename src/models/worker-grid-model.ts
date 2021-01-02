@@ -118,7 +118,7 @@ export default class WorkerGridModel {
         nextRows = await this._sendAndWait("LOAD_NEXT", payload);
 
         this.rows.push(...nextRows);
-      };
+      }
     });
   }
 

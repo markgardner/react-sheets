@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from "react";
 
 export const useWindowEvent = <K extends keyof WindowEventMap>(
   type: K,

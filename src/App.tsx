@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import styled from 'styled-components';
+import styled from "styled-components";
 
 import Grid from "./components/Grid";
 import { GridModel } from "./lib/types";
@@ -68,31 +68,38 @@ function App() {
     await nextModel.configure();
 
     setReady(true);
-  }
+  };
 
   const onClickClose = () => {
     setModel(null);
     setReady(false);
-  }
+  };
 
   if (!model) {
     return (
       <Container>
         <h1>Select a dataset to view</h1>
 
-        <DatasetButton onClick={onClickDataset('education')}>US County Education Stats (3,283 Records)</DatasetButton>
-        <DatasetButton onClick={onClickDataset('population')}>US City Population Stats (81,434 Records)</DatasetButton>
+        <DatasetButton onClick={onClickDataset("education")}>
+          US County Education Stats (3,283 Records)
+        </DatasetButton>
+        <DatasetButton onClick={onClickDataset("population")}>
+          US City Population Stats (81,434 Records)
+        </DatasetButton>
       </Container>
     );
   }
 
-  return !!ready && !!model && (
-    <>
-      <Header>
-        <button onClick={onClickClose}>Close Dataset</button>
-      </Header>
-      <Grid model={model} width={width} height={height} />
-    </>
+  return (
+    !!ready &&
+    !!model && (
+      <>
+        <Header>
+          <button onClick={onClickClose}>Close Dataset</button>
+        </Header>
+        <Grid model={model} width={width} height={height} />
+      </>
+    )
   );
 }
 

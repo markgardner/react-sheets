@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import styled from "styled-components";
 
-import { useWindowEvent } from '../lib/window-hooks';
+import { useWindowEvent } from "../lib/window-hooks";
 import { GridViewport, RowItem, ROW_HEIGHT } from "../lib/types";
 
 const Container = styled.div`
