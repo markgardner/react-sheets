@@ -3,6 +3,9 @@ import styled from "styled-components";
 
 import { RowItem, SchemaItem, ROW_NUMS_WIDTH, GridViewport } from "../lib/types";
 
+const RATIO = window.devicePixelRatio || 1;
+const SHARP_LINE_OFFSET = 0.5;
+
 const Canvas = styled.canvas`
   position: absolute;
   background: #fff;
@@ -25,8 +28,8 @@ function renderRowNumberHeader(context: CanvasRenderingContext2D, rows: RowItem[
 
   // Draw the right border for the row number column
   context.beginPath();
-  context.moveTo(ROW_NUMS_WIDTH - 0.5, 0);
-  context.lineTo(ROW_NUMS_WIDTH - 0.5, viewport.pxHeight);
+  context.moveTo(ROW_NUMS_WIDTH - SHARP_LINE_OFFSET, 0);
+  context.lineTo(ROW_NUMS_WIDTH - SHARP_LINE_OFFSET, viewport.pxHeight);
 
   const textCenter = ROW_NUMS_WIDTH / 2;
   const offsetTop = rows[viewport.top].dimension.top;
@@ -34,7 +37,7 @@ function renderRowNumberHeader(context: CanvasRenderingContext2D, rows: RowItem[
   // Draw the row number bottom border for each row
   for (let idx = viewport.top; idx < rows.length && idx <= viewport.bottom; idx++) {
     const { label, dimension } = rows[idx];
-    const lineY = dimension.bottom + 0.5 - offsetTop;
+    const lineY = dimension.bottom + SHARP_LINE_OFFSET - offsetTop;
 
     context.moveTo(0, lineY);
     context.lineTo(ROW_NUMS_WIDTH, lineY);
@@ -78,7 +81,7 @@ function renderTable(
   // Draw the lines for the visible columns in the table grid
   for (let cellIdx = viewport.left; cellIdx < cells.length && cellIdx <= viewport.right; cellIdx++) {
     const { dimension } = cells[cellIdx];
-    const lineX = ROW_NUMS_WIDTH + dimension.right - 0.5 - offsetLeft;
+    const lineX = ROW_NUMS_WIDTH + dimension.right - SHARP_LINE_OFFSET - offsetLeft;
 
     context.moveTo(lineX, 0);
     context.lineTo(lineX, viewport.pxHeight);
@@ -87,7 +90,7 @@ function renderTable(
   // Draw the lines for the visible rows in the table grid
   for (let rowIdx = viewport.top; rowIdx < rows.length && rowIdx <= viewport.bottom; rowIdx++) {
     const { dimension } = rows[rowIdx];
-    const lineY = dimension.bottom + 0.5 - offsetTop;
+    const lineY = dimension.bottom + SHARP_LINE_OFFSET - offsetTop;
 
     context.moveTo(ROW_NUMS_WIDTH, lineY);
     context.lineTo(ROW_NUMS_WIDTH + viewport.pxWidth, lineY);
@@ -101,14 +104,14 @@ function renderTable(
   // Write the column text for each cell visible
   for (let rowIdx = viewport.top; rowIdx < rows.length && rowIdx <= viewport.bottom; rowIdx++) {
     const { dimension: rowDimension, cells: rowData } = rows[rowIdx];
-    const lineY = rowDimension.bottom + 0.5 - offsetTop;
+    const lineY = rowDimension.bottom + SHARP_LINE_OFFSET - offsetTop;
 
     for (let dataIdx = viewport.left; dataIdx < rowData.length && dataIdx <= viewport.right; dataIdx++) {
       const label = rowData[dataIdx];
       const { dimension: cellDimension } = cells[dataIdx];
 
-      const rectX = ROW_NUMS_WIDTH + cellDimension.left + 0.5 - offsetLeft;
-      const rectTop = rowDimension.top + 0.5 - offsetTop;
+      const rectX = ROW_NUMS_WIDTH + cellDimension.left + SHARP_LINE_OFFSET - offsetLeft;
+      const rectTop = rowDimension.top + SHARP_LINE_OFFSET - offsetTop;
 
       context.save();
       context.beginPath();
@@ -164,6 +167,10 @@ const TableRenderer = ({ viewport, cells, rows, left, top, width, height }: Tabl
         const context = canvasRef.current?.getContext("2d");
 
         if (context) {
+          if (RATIO > 1) {
+            context.setTransform(RATIO, 0, 0, RATIO, 0, 0);
+          }
+
           renderTable(context, cells, rows, viewport);
           renderRowNumberHeader(context, rows, viewport);
           renderEmptySpace(context, viewport, width, height);
@@ -176,7 +183,17 @@ const TableRenderer = ({ viewport, cells, rows, left, top, width, height }: Tabl
     }
   }, [viewport, rows, cells, width, height]);
 
-  return <Canvas ref={canvasRef} width={width} height={height} style={{ top, left, width, height }} />;
+  const canvasWidth = RATIO * width;
+  const canvasHeight = RATIO * height;
+
+  return (
+    <Canvas
+      ref={canvasRef}
+      width={canvasWidth}
+      height={canvasHeight}
+      style={{ top, left, width, height }}
+    />
+  );
 };
 
 export default TableRenderer;
