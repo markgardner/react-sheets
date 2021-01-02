@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
 import { useWindowEvent } from "../lib/window-hooks";
@@ -39,10 +39,16 @@ const GridRowNumInteractions = ({
   height,
   onResizeRow,
 }: GridRowNumInteractionsProps) => {
+  const containerOffsetY = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [resizingRowIdx, setResizingRowIdx] = useState(-1);
   const [resizerPos, setResizerPos] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+
+  // The viewport changes everytime the grid changes size
+  useEffect(() => {
+    containerOffsetY.current = null;
+  }, [viewport]);
 
   useWindowEvent(
     "mouseup",
@@ -64,31 +70,39 @@ const GridRowNumInteractions = ({
     [isDragging, resizerPos, resizingRowIdx, rows, viewport, onResizeRow]
   );
 
-  const onContainerMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (viewport && rows && e.target === containerRef.current) {
-      const mouseY = e.nativeEvent.offsetY;
+  useWindowEvent(
+    "mousemove",
+    (e: MouseEvent) => {
+      if (viewport && rows) {
+        if (!isDragging && e.target === containerRef.current) {
+          if (containerOffsetY.current === null) {
+            const rect = containerRef.current?.getBoundingClientRect();
 
-      if (!isDragging) {
-        const gridOffsetY = rows[viewport.top].dimension.top;
-        const gridPositionY = gridOffsetY + mouseY;
-
-        for (var idx = viewport.top; idx < viewport.bottom; idx++) {
-          const { bottom } = rows[idx].dimension;
-
-          if (bottom - 6 < gridPositionY && gridPositionY < bottom) {
-            setResizerPos(bottom - gridOffsetY - 6);
-            setResizingRowIdx(idx);
-            return;
-          } else if (bottom > gridPositionY && resizingRowIdx > -1) {
-            setResizingRowIdx(-1);
-            return;
+            containerOffsetY.current = rect?.top || 0;
           }
+
+          const gridOffsetY = rows[viewport.top].dimension.top;
+          const gridPositionY = gridOffsetY + e.pageY - containerOffsetY.current;
+
+          for (var idx = viewport.top; idx <= viewport.bottom; idx++) {
+            const { bottom } = rows[idx].dimension;
+
+            if (bottom - 6 < gridPositionY && gridPositionY < bottom) {
+              setResizerPos(bottom - gridOffsetY - 6);
+              setResizingRowIdx(idx);
+              return;
+            } else if (bottom > gridPositionY && resizingRowIdx > -1) {
+              setResizingRowIdx(-1);
+              return;
+            }
+          }
+        } else if (isDragging) {
+          setResizerPos(e.pageY - (containerOffsetY.current || 0) - 3);
         }
-      } else {
-        setResizerPos(mouseY);
       }
-    }
-  };
+    },
+    [viewport, rows, isDragging, resizingRowIdx]
+  );
 
   const onContainerMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -113,7 +127,6 @@ const GridRowNumInteractions = ({
     <Container
       ref={containerRef}
       style={{ width, height }}
-      onMouseMove={onContainerMouseMove}
       onMouseDown={onContainerMouseDown}
       onMouseLeave={onContainerMouseLeave}
     >
