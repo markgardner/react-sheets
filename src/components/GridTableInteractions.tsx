@@ -161,6 +161,9 @@ const GridTableSelection = ({
   }, [viewport, cells, rows, selectedCell, editingCell]);
 
   const onWheelHandler = (event: React.WheelEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
     const deltaX = event.deltaMode === DOM_DELTA_LINE ? event.deltaX : event.deltaX / DELTA_LINE_HEIGHT;
     const deltaY = event.deltaMode === DOM_DELTA_LINE ? event.deltaY : event.deltaY / DELTA_LINE_HEIGHT;
 
