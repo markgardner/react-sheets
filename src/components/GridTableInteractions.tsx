@@ -18,6 +18,10 @@ const SelectionBox = styled.div`
   outline: 2px solid #4d90fe;
 `;
 
+const SelectionBoxEditing = styled(SelectionBox)`
+  background: #fff;
+`;
+
 const SelectionBoxInput = styled.input`
   font: 13px Arial;
   color: #212121;
@@ -241,7 +245,7 @@ const GridTableSelection = ({
     >
       {selectedCell && <SelectionBox style={selectedCell.style} />}
       {editingCell && (
-        <SelectionBox style={editingCell.style}>
+        <SelectionBoxEditing style={editingCell.style}>
           <SelectionBoxInput
             autoFocus={true}
             value={cellValue}
@@ -249,7 +253,7 @@ const GridTableSelection = ({
             onKeyUp={onKeyUpInput}
             onBlur={onBlurInput}
           />
-        </SelectionBox>
+        </SelectionBoxEditing>
       )}
     </Container>
   );
