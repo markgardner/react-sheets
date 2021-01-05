@@ -20,6 +20,7 @@ const SelectionBox = styled.div`
 
 const SelectionBoxEditing = styled(SelectionBox)`
   background: #fff;
+  box-shadow: 0px 0px 7px 2px rgba(0,0,0,0.18);
 `;
 
 const SelectionBoxInput = styled.input`
